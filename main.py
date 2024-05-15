@@ -1,3 +1,4 @@
+import os
 import csv
 import json
 import requests
@@ -9,13 +10,12 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Safari/537.36",
 }
 
-req = requests.get(url, headers)
+req = requests.get(url, headers=headers)
 
-with open('json-lesson/diet/index.html', 'w', encoding='utf-8') as file:
+with open("index.html", "w", encoding="utf-8") as file:
     file.write(req.text)
 
-
-with open("json-lesson/diet/index.html", "r", encoding="utf-8") as file:
+with open("index.html", "r", encoding="utf-8") as file:
     src = file.read()
 
 # ----- Working with data -----
@@ -31,12 +31,14 @@ for i in soup.find_all("a", class_="mzr-tc-group-item-href"):
 
     all_categories_dict[item_text] = item_href
 
+# Ensure the directories exist
+os.makedirs("data", exist_ok=True)
 
 # Writing all categories
-with open("json-lesson/diet/all_categories_dict.json", "w", encoding="utf-8") as file:
+with open("all_categories_dict.json", "w", encoding="utf-8") as file:
     json.dump(all_categories_dict, file, indent=4, ensure_ascii=False)
 
-with open("json-lesson/diet/all_categories_dict.json", encoding="utf-8") as file:
+with open("all_categories_dict.json", encoding="utf-8") as file:
     all_categories = json.load(file)
 
 count = 0
@@ -51,14 +53,14 @@ for categorie_title, categorie_href in all_categories.items():
     src = req.text
 
     with open(
-        f"json-lesson/diet/data/{count}_{categorie_title}.html",
+        f"data/{count}_{categorie_title}.html",
         "w",
         encoding="utf-8",
     ) as file:
         file.write(src)
 
     with open(
-        f"json-lesson/diet/data/{count}_{categorie_title}.html",
+        f"data/{count}_{categorie_title}.html",
         "r",
         encoding="utf-8",
     ) as file:
@@ -80,7 +82,7 @@ for categorie_title, categorie_href in all_categories.items():
     carbohydrates = table_head[4].text
 
     with open(
-        f"json-lesson/diet/data/{count}_{categorie_title}.csv",
+        f"data/{count}_{categorie_title}.csv",
         "w",
         encoding="utf-8",
     ) as file:
@@ -88,9 +90,7 @@ for categorie_title, categorie_href in all_categories.items():
         writer.writerow((product, calories, proteins, fats, carbohydrates))
 
     # Taking data
-    product_data = (
-        soup.find(class_="mzr-tc-group-table").find("tbody").find_all("tr")
-    )
+    product_data = soup.find(class_="mzr-tc-group-table").find("tbody").find_all("tr")
 
     product_info = []
 
@@ -114,7 +114,7 @@ for categorie_title, categorie_href in all_categories.items():
         )
 
         with open(
-            f"json-lesson/diet/data/{count}_{categorie_title}.csv",
+            f"data/{count}_{categorie_title}.csv",
             "a",
             encoding="utf-8",
         ) as file:
@@ -122,7 +122,7 @@ for categorie_title, categorie_href in all_categories.items():
             writer.writerow((title, calories, proteins, fats, carbohydrates))
 
     with open(
-        f"json-lesson/diet/data/{count}_{categorie_title}.json",
+        f"data/{count}_{categorie_title}.json",
         "a",
         encoding="utf-8",
     ) as file:
